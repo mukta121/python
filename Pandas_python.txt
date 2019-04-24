@@ -1,0 +1,710 @@
+1.df.describe() #Generates descriptive statistics that summarize the central tendency, dispersion and shape of a dataset’s distribution, excluding NaN values.
+  Describing a DataFrame. By default only numeric fields are returned.
+a.df.describe(include='all') #Describing all columns of a DataFrame regardless of data type.
+b.df.describe(include=[np.number])#Including only numeric columns in a DataFrame description
+c.df.describe(include=[np.object])#Including only string columns in a DataFrame description.
+d.df.describe(include=['category'])#Including only categorical columns from a DataFrame description.
+e.df.describe(exclude=[np.number]) #Excluding numeric columns from a DataFrame description.
+f.df.describe(include = ['object'])) #Include object columns
+
+.....................................................................................................
+pd.dummies()
+pd.factorize()
+df['A']=pd.factorize(df.A)[0]
+pd.factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None)[source]
+Encode the object as an enumerated type or categorical variable.
+
+MISSING VALUE
+# Columns that have missing values
+data_px.columns[data_px.isnull().any()].tolist()
+data_px[data_px.columns[data_px.isnull().any()].tolist()].dtypes
+
+# Replacing NaNs with Modal value for Categorical Variables and Mean for Numeric
+def replace_na(df = None):
+    df = df.copy()
+    na_cols = df.columns[df.isnull().any()].tolist()
+    
+    df_na = df[na_cols].reset_index(drop = True)
+    df = df.drop(columns = na_cols, axis = 1).reset_index(drop = True)
+    print('\n')
+    if len(na_cols) > 0:
+        print('%d columns have missing/na values'%len(na_cols))
+        
+        df_cat = df_na.select_dtypes(include=['object','category'])
+        print('%d categorical columns have missing values'%len(df_cat.columns.tolist()))
+        if df_cat.empty == False:
+            df_cat = df_cat.apply(lambda x: x.fillna(x.mode()[0]))
+            df_cat = df_cat.reset_index(drop = True)
+            df = pd.concat([df, df_cat], axis = 1).reset_index(drop = True)
+        
+        df_num = df_na.select_dtypes(include=['int64','float64','bool','datetime64','datetime64[ns]'])
+        print('%d numerical columns have missing values'%len(df_num.columns.tolist()))
+        if df_num.empty == False:
+            df_num = df_num.apply(lambda x: x.fillna(x.median()))
+            df_num = df_num.astype(np.float64).reset_index(drop = True)
+            df = pd.concat([df, df_num], axis = 1).reset_index(drop = True)
+    else:
+        print('There are no columns with missing values')
+    
+    return df
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+................................................................................................................................
+X,y formation from dataset
+# X3 = np.array(X2.iloc[:, X2.columns != 'Target'])
+# y = np.array(X2.iloc[:, X2.columns == 'Target'])
+# print('Shape of X: {}'.format(X.shape))
+# print('Shape of y: {}'.format(y.shape))
+
+......................................................................................................................
+panda merger multile dataframe
+from functools import reduce
+dfs=[New_pm10mass,New_pm10speciation,New_PM2_5_Speciation,New_PM2_5_FRM_FEM_Mass]
+final_after_merge = reduce(lambda left,right: pd.merge(left,right,on=[ 'Latitude', 'Longitude', 'County Name']), dfs)
+......................................................................................................................
+To get unique element from the two columns and stores it in separate columns
+pd.concat([df,pd.Series(list(set(df['col1'].values)-set(df['col2'].values)))], ignore_index=True, axis=1)
+...........................................................................................................
+# checking the percentage of missing values in each variable
+train.isnull().sum()/len(train)*100
+................................................................................................................
+Set opearation
+..............
+Concat multiple datadrame at once
+(pd.concat([t1, t2, t3, t4, t5], ignore_index=True) # t1,t2,t3,t4,t5 are dataframe
+or
+df = df1.append([df2, df3])
+
+
+......................................
+append adds its argument as a single element to the end of a list. The length of the list itself will increase by one.
+extend iterates over its argument adding each element to the list, extending the list. The length of the list will increase by however many elements were in the iterable argument.
+x = [1, 2, 3]
+x.append([4, 5])
+print (x)
+O/P:[1, 2, 3, [4, 5]]
+and
+x = [1, 2, 3]
+x.extend([4, 5])
+print (x)
+O/P:[1, 2, 3, 4, 5]
+
+
+Utility	Functions in pandas 
+Extract Column Names	df.columns
+Select first 2 rows	df.iloc[:2]
+Select first 2 columns	df.iloc[:,:2]
+Select columns by name	df.loc[:,["col1","col2"]]
+Select random no. of rows	df.sample(n = 10)
+Select fraction of random rows	df.sample(frac = 0.2)
+Rename the variables	df.rename( )
+Selecting a column as index	df.set_index( )
+Removing rows or columns	df.drop( )
+Sorting values	df.sort_values( )
+Grouping variables	df.groupby( )
+Filtering	df.query( )
+Finding the missing values	df.isnull( )
+Dropping the missing values	df.dropna( )
+Removing the duplicates	df.drop_duplicates( )
+Creating dummies	pd.get_dummies( )
+Ranking	df.rank( )
+Cumulative sum	df.cumsum( )
+Quantiles	df.quantile( )
+Selecting numeric variables	df.select_dtypes( )
+Concatenating two dataframes	pd.concat()
+Merging on basis of common variable	pd.merge( )
+
+
+
+
+
+
+change date to datetime
+df['Date'] =pd.to_datetime(df.Date)
+# Converting into Date and extracting month, week and quarter
+def date_extraction(data, date_col = None):
+    import calendar
+    # Now converting string date column to pandas datetime format
+    data[date_col] = pd.to_datetime(data[date_col], dayfirst = True).astype('datetime64[ns]')
+    # Extracting month, week and quarter
+    data['Year'] = data[date_col].dt.year
+    data['Month'] = data[date_col].dt.month
+    data['Month'] = data['Month'].apply(lambda x: calendar.month_name[x])
+    data['Month'] = data['Month'].apply(lambda x: x[:3])
+    #data['Week'] = data[date_col].dt.weekday
+    data['Week'] = data[date_col].dt.weekday_name
+    data['Quarter'] = data[date_col].dt.quarter
+    return data
+##########
+df.sort_values(by='Date') 
+OR
+df.sort('Date') # This now sorts in date order
+OR
+df.sort_values(by=['Date'], inplace=True, ascending=False)
+..............................................................
+#for rounding up n place
+df.apply(lambda x: round(x,2)) 
+.............................................................
+Taking out random sample from dataframe
+df.sample(n=None, frac=None, replace=False, weights=None, random_state=None, axis=None)
+*n=Number of items from axis to return
+*Frac=Fraction of axis items to return. Cannot be used with n
+*random_state=Seed for the random number generator (if int), or numpy RandomState object.
+*axis=Axis to sample. Accepts axis number or name. Default is stat axis for given data type (0 for Series and DataFrames, 1 for Panels).
+..............................................................................................................................................................................
+Sale by Month
+sales_by_month = df.groupby('Month').size()
+print(sales_by_month)
+#Plotting the Graph
+plot_by_month = sales_by_month.plot(title='Monthly Sales',xticks=(1,2,3,4,5,6,7,8,9,10,11,12))
+plot_by_month.set_xlabel('Months')
+plot_by_month.set_ylabel('Total Sales')
+you can use .size() to get aggregated value of the particular column only or .count() for every column. 
+Since we only need for Month so I used that. 
+......................................................................................................................
+df['Gender'] = np.where(df['PTNT_GNDR_CDE'] == 1, 'Male', 'Female')  Where pabdas fn for dividing in to groups.
+......................................................................................................................
+Making Age Bucket according to own bin:
+df['Age_Bucket'] = np.where(df['AGE'] <= 1, "0-1", 
+                                np.where((df['AGE'] >= 2) & (df['AGE'] <= 4), "2-4",
+                                np.where((df['AGE'] >= 5) & (df['AGE'] <= 8), "5-8",
+                                np.where((df['AGE'] >= 9) & (df['AGE'] <= 10), "9-10", ">10"))))
+
+
+
+These four encoders can be split in two categories:
+
+Encode labels into categorical variables: Pandas factorize and scikit-learn LabelEncoder. The result will have 1 dimension.
+Encode categorical variable into dummy/indicator (binary) variables: Pandas get_dummies and scikit-learn OneHotEncoder. The result will have n dimensions, one by distinct value of the encoded categorical variable.
+The main difference between pandas and scikit-learn encoders is that scikit-learn encoders are made to be used in scikit-learn pipelines with fit and transform methods.
+factorize and LabelEncoder works the same way; get_dummies and OneHotEncoder will yield the same result but OneHotEncoder can only handle numbers but get_dummies will take all kinds of input
+Pandas.factorize()
+pandas.factorize() method helps to get the numeric representation of an array by identifying distinct values. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+For mapping to categorical val to numerical
+titanic.Sex = titanic.Sex.map({'male':0, 'female':1})
+
+For replacing the null value with the mean,median,mode
+X.Age.fillna(X.Age.mean(),inplace=True)
+
+
+Categorical values
+Value_counts()
+df.value_counts().
+                    .count()
+                    .index[0]
+                   .index
+                   .value
+
+histogram plot for value_counts()
+%matplotlib inline
+import seaborn as sns
+import matplotlib.pyplot as plt
+carrier_count = cat_df_flights['carrier'].value_counts()
+sns.set(style="darkgrid")
+sns.barplot(carrier_count.index, carrier_count.values, alpha=0.9)
+plt.title('Frequency Distribution of Carriers')
+plt.ylabel('Number of Occurrences', fontsize=12)
+plt.xlabel('Carrier', fontsize=12)
+plt.show()
+
+Pi-Plot for  value_counts()
+labels = cat_df_flights['carrier'].astype('category').cat.categories.tolist()
+counts = cat_df_flights['carrier'].value_counts()
+sizes = [counts[var_cat] for var_cat in labels]
+fig1, ax1 = plt.subplots()
+ax1.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True) #autopct is show the % on plot
+ax1.axis('equal')
+plt.show()
+
+Convert Categorical values into numerical values:
+1.Replacing values:
+
+
+replace_map = {'carrier': {'AA': 1, 'AS': 2, 'B6': 3, 'DL': 4,
+                                  'F9': 5, 'HA': 6, 'OO': 7 , 'UA': 8 , 'US': 9,'VX': 10,'WN': 11}
+
+OR
+
+labels = data_rx['SPCLT_CODE'].astype('category').cat.categories.tolist()
+replace_map_comp = {'SPCLT_CODE' : {k: v for k,v in zip(labels,list(range(1,len(labels)+1)))}}
+print(replace_map_comp)
+data_rx.replace(replace_map_comp, inplace=True)
+data_rx.head()
+
+OR
+cat_df_flights_lc = cat_df_flights.copy()
+cat_df_flights_lc['carrier'] = cat_df_flights_lc['carrier'].astype('category')
+cat_df_flights_lc['origin'] = cat_df_flights_lc['origin'].astype('category')                                                              
+
+print(cat_df_flights_lc.dtypes)
+
+2.Encoding labels:
+
+
+
+3.One-Hot encoding
+The basic strategy is to convert each category value into a new column and assign a 1 or 0
+
+cat_df_flights_onehot = pd.get_dummies(cat_df_flights_onehot, columns=['carrier'], prefix = ['carrier'])
+
+print(cat_df_flights_onehot.head())
+
+4.Binary encoding
+
+In this technique, first the categories are encoded as ordinal, then those integers are converted into binary code, then the digits from that binary string are split into separate columns. 
+This encodes the data in fewer dimensions than one-hot.Note that category_encoders is a very useful library for encoding categorical columns. 
+
+import category_encoders as ce
+encoder = ce.BinaryEncoder(cols=['carrier'])
+df_binary = encoder.fit_transform(cat_df_flights_ce)
+df_binary.head()
+
+5.Backward difference encoding
+ In backward difference coding, the mean of the dependent variable for a level is compared with the mean of the dependent variable for the prior level. This type of coding may be useful for a nominal or an ordinal variable.This technique falls under the contrast coding system for categorical features. A feature of K categories, or levels, usually enters a regression as a sequence of K-1 dummy variables
+
+encoder = ce.BackwardDifferenceEncoder(cols=['carrier'])
+df_bd = encoder.fit_transform(cat_df_flights_ce)
+df_bd.head()
+
+6.Miscellaneous features
+
+dummy_df_age = pd.DataFrame({'age': ['0-20', '20-40', '40-60','60-80']})
+dummy_df_age['start'], dummy_df_age['end'] = zip(*dummy_df_age['age'].map(lambda x: x.split('-')))
+dummy_df_age.head()
+dummy_df_age = pd.DataFrame({'age': ['0-20', '20-40', '40-60','60-80']})
+def split_mean(x):
+    split_list = x.split('-')
+    mean = (float(split_list[0])+float(split_list[1]))/2
+    return mean
+dummy_df_age['age_mean'] = dummy_df_age['age'].apply(lambda x: split_mean(x))
+dummy_df_age.head()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+..............................................................................................................
+
+Melt,Stack,Unstack
+
+
+....................................................................................................................................................
+1.Histogram
+num_bins = 10
+plt.hist(df['Amount'], num_bins, normed=1, facecolor='blue', alpha=0.5)
+plt.show()
+
+
+
+Transform the gender feature
+This transformation is easier, being already a binary classification (male or female, this was 1912). It doesn't need to create separate dummy categories, a mapping will be enough:
+
+titanic.Sex = titanic.Sex.map({'male':0, 'female':1})
+
+df.to_csv(file_name, sep='\t', encoding='utf-8')
+
+
+from sklearn.utils import shuffle
+df = shuffle(df)
+
+The more idiomatic way to do this with pandas is to use the .sample method of your dataframe, i.e.
+
+df.sample(frac=1)
+The frac keyword argument specifies the fraction of rows to return in the random sample, so frac=1 means return all rows (in random order).
+
+Note: If you wish to shuffle your dataframe in-place and reset the index, you could do e.g.
+
+df = df.sample(frac=1).reset_index(drop=True)
+Here, specifying drop=True prevents .reset_index from creating a column containing the old index entries.
+
+Melt()
+Pandas.melt() unpivots a DataFrame from wide format to long format.
+melt() function is useful to massage a DataFrame into a format where one or more columns are identifier variables, 
+while all other columns, considered measured variables, are unpivoted to the row axis, leaving just two non-identifier columns, variable and value.
+
+Syntax :
+
+pandas.melt(frame, id_vars=None, value_vars=None,var_name=None, value_name='value', col_level=None)
+
+Parameters:
+
+frame : DataFrame
+id_vars[tuple, list, or ndarray, optional] : Column(s) to use as identifier variables.
+value_vars[tuple, list, or ndarray, optional]: Column(s) to unpivot. If not specified, uses all columns that are not set as id_vars.
+var_name[scalar]: Name to use for the ‘variable’ column. If None it uses frame.columns.name or ‘variable’.
+value_name[scalar, default ‘value’]: Name to use for the ‘value’ column.
+col_level[int or string, optional]: If columns are a MultiIndex then use this level to melt.
+
+
+
+
+
+
+seaborn 
+
+sns.set_style("whitegrid")
+with sns.color_palette([
+    "#8ED752", "#F95643", "#53AFFE", "#C3D221", "#BBBDAF",
+    "#AD5CA2", "#F8E64E", "#F0CA42", "#F9AEFE", "#A35449",
+    "#FB61B4", "#CDBD72", "#7673DA", "#66EBFF", "#8B76FF",
+    "#8E6856", "#C3C1D7", "#75A4F9"], n_colors=18, desat=.9):
+    plt.figure(figsize=(12,10))
+    plt.ylim(0, 275)
+    sns.swarmplot(x="Stat", y="value", data=pkmm, hue="Type 1", dodge=True, size=7)
+    plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
+
+
+
+Distribution 
+1.BarPlot
+%matplotlib inline
+import seaborn as sns
+import matplotlib.pyplot as plt
+carrier_count = Drug_rx_dummy["Weekly_Supply_Nbr"].value_counts()
+sns.set(style="darkgrid")
+sns.barplot(carrier_count.index, carrier_count.values, alpha=0.9)
+plt.title('Frequency Distribution of Carriers')
+plt.ylabel('Number of Occurrences', fontsize=12)
+plt.xlabel('Carrier', fontsize=12)
+plt.show()
+
+2.PiePlot
+labels = Drug_rx_dummy["Weekly_Supply_Nbr"].astype('category').cat.categories.tolist()
+counts = Drug_rx_dummy["Weekly_Supply_Nbr"].value_counts()
+sizes = [counts[var_cat] for var_cat in labels]
+#fig1=plt.figure(figsize=(100,80))
+fig1, ax1 = plt.subplots()
+fig1=plt.figure(figsize=(30, 20), dpi= 80, facecolor='w', edgecolor='k')
+ax1.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True) #autopct is show the % on plot
+ax1.axis('equal')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+Heatmap
+import seaborn as sns
+import matplotlib.pyplot as plt
+plt.figure(figsize=(20,10))
+sns.heatmap(result, annot=True, fmt="g", cmap='viridis')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Feature Extraction:find the most corelated feature
+
+def corr_var_drop(zsd_test_cntrl, corr_limit = None):
+    #corr_check_dat = zsd_test_cntrl.drop(columns = ['PRSN_REAL_GID', 'Target'], axis = 0)
+    
+    # Create correlation matrix
+    corr_matrix = corr_check_dat.corr().abs()
+    
+    # Select upper triangle of correlation matrix
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+    
+    # Find index of feature columns with correlation greater than 0.95
+    to_drop = [column for column in upper.columns if any(upper[column] > corr_limit)]
+    print('Number of variables with correlation ',str(corr_limit), ': ' , len(to_drop))
+    return to_drop
+
+highly_correlated_vars_5 = corr_var_drop(X, corr_limit = 0.5) 
+
+
+# Dropping the Columns that are highly cor-related
+def corr_var_drop(zsd_test_cntrl, corr_limit = None):
+    corr_check_dat = zsd_test_cntrl.drop(columns = ['PRSN_REAL_GID', 'Target'], axis = 0)
+    
+    # Create correlation matrix
+    corr_matrix = corr_check_dat.corr().abs()
+    
+    # Select upper triangle of correlation matrix
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k = 1).astype(np.bool))
+    
+    # Find index of feature columns with correlation greater than 0.95
+    to_drop = [column for column in upper.columns if any(upper[column] > corr_limit)]
+    print('Number of variables with correlation > ',str(corr_limit), ': ' , len(to_drop))
+    return to_drop
+highly_correlated_vars_09 = corr_var_drop(zsd_test_cntrl_scale, corr_limit = 0.9)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PIVOT_TABLE:
+pd.pivot_table(df,index=["Manager","Status"],columns=["Product"],values=["Quantity","Price"],
+               aggfunc={"Quantity":len,"Price":np.sum},fill_value=0)
+
+
+ 
+
+**Notice the use of index_col=0 meaning we don't read in row name (index) as a separated column.
+load in the dataframe
+df = pd.read_csv("data/winemag-data-130k-v2.csv", index_col=0)
+
+
+sort the value in ascending order 
+country.size().sort_values(ascending=False).head()
+
+
+
+
+
+
+
+
+
+
+Note:link:https://www.analyticsvidhya.com/blog/2014/11/text-data-cleaning-steps-python/
+Cleaning Text:
+Step for data cleaning
+1.Escaping HTML characters.
+     a) by the use of specific regular expressions
+     b)use appropriate packages and modules
+    EX:import HTMLParser
+       html_parser = HTMLParser.HTMLParser()
+       tweet = html_parser.unescape(original_tweet)
+
+2.Decoding data.
+       tweet = original_tweet.decode("utf8").encode(‘ascii’,’ignore’)
+
+3.Apostrophe Lookup.
+ EX
+   APPOSTOPHES = {“'s" : " is", "'re" : " are", ...} ## Need a huge dictionary
+   words = tweet.split()
+   reformed = [APPOSTOPHES[word] if word in APPOSTOPHES else word for word in words
+   reformed = " ".join(reformed)
+
+  tweet = _slang_loopup(tweet)
+  dictionary for APPOSTOPHES, 
+  _slang_loopup and 
+  set of rules for word standardization 
+
+4.Removal of Stop-words:One can either create a long list of stop-words or one can use predefined language specific libraries.
+5.Removal of Punctuations:All the punctuation marks according to the priorities should be dealt with
+6.Removal of Expressions:Textual data (usually speech transcripts) may contain human expressions like [laughing], [Crying], [Audience paused]
+7.Split Attached Words: We humans in the social forums generate text data, which is completely informal in nature. Most of the tweets are accompanied with multiple attached words like RainyDay, PlayingInTheCold etc.
+  cleaned = “ ”.join(re.findall(‘[A-Z][^A-Z]*’, original_tweet))
+
+8.slangs lookup: Again, social media comprises of a majority of slang words. These words should be transformed into standard words to make free text. The words like luv will be converted to love, Helo to Hello. The similar approach of apostrophe look up can be used to convert slangs to standard words. A number of sources are available on the web, which provides lists of all possible slangs, this would be your holy grail and you could use them as lookup dictionaries for conversion purposes.
+                        tweet = _slang_loopup(tweet)
+
+9.Standardizing words: Sometimes words are not in proper formats. For example: “I looooveee you” should be “I love you”. Simple rules and regular expressions can help solve these cases
+  tweet = ''.join(''.join(s)[:2] for _, s in itertools.groupby(tweet))
+
+10.Removal of URLs: URLs and hyperlinks in text data like comments, reviews, and tweets should be removed.
+
+Advanced data cleaning:
+Grammar checking: Grammar checking is majorly learning based, huge amount of proper text data is learned 
+                  and models are created for the purpose of grammar correction. There are many online tools 
+                  that are available for grammar correction purposes.
+Spelling correction: In natural language, misspelled errors are encountered. 
+                     Companies like Google and Microsoft have achieved a decent accuracy level in automated spell correction.
+                     One can use algorithms like the Levenshtein Distances, Dictionary Lookup etc. 
+                     or other modules and packages to fix these errors.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1.
+def standardize_text(df, text_field):
+    df[text_field] = df[text_field].str.replace(r"http\S+", "")
+    df[text_field] = df[text_field].str.replace(r"http", "")
+    df[text_field] = df[text_field].str.replace(r"@\S+", "")
+    df[text_field] = df[text_field].str.replace(r"[^A-Za-z0-9(),!?@\'\`\"\_\n]", " ")
+    df[text_field] = df[text_field].str.replace(r"@", "at")
+    df[text_field] = df[text_field].str.lower()
+    return df
+
+2.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+insure to have jupyter lab version 35+   :jupyter notebook --version
+                               conda install -c conda-forge jupyterlab
+
+install nodejs:                                            : conda install -c conda-forge nodejs 
+
+install                                                           :jupyter labextension install @lckr/jupyterlab_variableinspector
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
