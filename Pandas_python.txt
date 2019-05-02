@@ -1,5 +1,7 @@
-1.df.describe() #Generates descriptive statistics that summarize the central tendency, dispersion and shape of a datasetís distribution, excluding NaN values.
-  Describing a DataFrame. By default only numeric fields are returned.
+Data Analysis
+Describe()
+1.df.describe() #Generates descriptive statistics that summarize the central tendency, dispersion and shape of a dataset‚Äôs distribution, excluding NaN values.
+Describing a DataFrame. By default only numeric fields are returned.
 a.df.describe(include='all') #Describing all columns of a DataFrame regardless of data type.
 b.df.describe(include=[np.number])#Including only numeric columns in a DataFrame description
 c.df.describe(include=[np.object])#Including only string columns in a DataFrame description.
@@ -379,8 +381,8 @@ Parameters:
 frame : DataFrame
 id_vars[tuple, list, or ndarray, optional] : Column(s) to use as identifier variables.
 value_vars[tuple, list, or ndarray, optional]: Column(s) to unpivot. If not specified, uses all columns that are not set as id_vars.
-var_name[scalar]: Name to use for the ëvariableí column. If None it uses frame.columns.name or ëvariableí.
-value_name[scalar, default ëvalueí]: Name to use for the ëvalueí column.
+var_name[scalar]: Name to use for the ‚Äòvariable‚Äô column. If None it uses frame.columns.name or ‚Äòvariable‚Äô.
+value_name[scalar, default ‚Äòvalue‚Äô]: Name to use for the ‚Äòvalue‚Äô column.
 col_level[int or string, optional]: If columns are a MultiIndex then use this level to melt.
 
 
@@ -585,11 +587,11 @@ Step for data cleaning
        tweet = html_parser.unescape(original_tweet)
 
 2.Decoding data.
-       tweet = original_tweet.decode("utf8").encode(ëasciií,íignoreí)
+       tweet = original_tweet.decode("utf8").encode(‚Äòascii‚Äô,‚Äôignore‚Äô)
 
 3.Apostrophe Lookup.
  EX
-   APPOSTOPHES = {ì's" : " is", "'re" : " are", ...} ## Need a huge dictionary
+   APPOSTOPHES = {‚Äú's" : " is", "'re" : " are", ...} ## Need a huge dictionary
    words = tweet.split()
    reformed = [APPOSTOPHES[word] if word in APPOSTOPHES else word for word in words
    reformed = " ".join(reformed)
@@ -603,12 +605,12 @@ Step for data cleaning
 5.Removal of Punctuations:All the punctuation marks according to the priorities should be dealt with
 6.Removal of Expressions:Textual data (usually speech transcripts) may contain human expressions like [laughing], [Crying], [Audience paused]
 7.Split Attached Words: We humans in the social forums generate text data, which is completely informal in nature. Most of the tweets are accompanied with multiple attached words like RainyDay, PlayingInTheCold etc.
-  cleaned = ì î.join(re.findall(ë[A-Z][^A-Z]*í, original_tweet))
+  cleaned = ‚Äú ‚Äù.join(re.findall(‚Äò[A-Z][^A-Z]*‚Äô, original_tweet))
 
 8.slangs lookup: Again, social media comprises of a majority of slang words. These words should be transformed into standard words to make free text. The words like luv will be converted to love, Helo to Hello. The similar approach of apostrophe look up can be used to convert slangs to standard words. A number of sources are available on the web, which provides lists of all possible slangs, this would be your holy grail and you could use them as lookup dictionaries for conversion purposes.
                         tweet = _slang_loopup(tweet)
 
-9.Standardizing words: Sometimes words are not in proper formats. For example: ìI looooveee youî should be ìI love youî. Simple rules and regular expressions can help solve these cases
+9.Standardizing words: Sometimes words are not in proper formats. For example: ‚ÄúI looooveee you‚Äù should be ‚ÄúI love you‚Äù. Simple rules and regular expressions can help solve these cases
   tweet = ''.join(''.join(s)[:2] for _, s in itertools.groupby(tweet))
 
 10.Removal of URLs: URLs and hyperlinks in text data like comments, reviews, and tweets should be removed.
